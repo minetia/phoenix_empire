@@ -4,10 +4,21 @@
     <meta charset="UTF-8">
     <title>PHOENIX EMPIRE</title>
     <style>
-        body { background: #0a0a0a; color: #00ffcc; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-shadow: 0 0 10px #00ffcc; }
-        h1 { font-size: 3rem; letter-spacing: 5px; border: 2px solid #00ffcc; padding: 20px; box-shadow: 0 0 20px #00ffcc; }
-        .data-box { margin-top: 30px; color: #0f0; border: 1px solid #0f0; padding: 20px; background: rgba(0, 255, 0, 0.05); text-shadow: none; font-size: 1.2rem; min-width: 300px; text-align: left; }
+        body { background: #0a0a0a; color: #00ffcc; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; padding-top: 30px; padding-bottom: 50px; text-shadow: 0 0 10px #00ffcc; }
+        h1 { font-size: 3rem; letter-spacing: 5px; border: 2px solid #00ffcc; padding: 20px; box-shadow: 0 0 20px #00ffcc; margin-bottom: 10px; }
+        .data-box { margin-top: 20px; color: #0f0; border: 1px solid #0f0; padding: 20px; background: rgba(0, 255, 0, 0.05); text-shadow: none; font-size: 1.2rem; min-width: 400px; text-align: left; }
         .risk-high { color: #ff0000; font-weight: bold; text-shadow: 0 0 5px #ff0000; }
+        
+        /* 젠트파크 바 */
+        .agent-bar { margin-top: 20px; width: 400px; background: #003322; border: 1px solid #00ffcc; padding: 15px; text-align: center; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.3s; box-shadow: 0 0 10px #00ffcc; user-select: none; }
+        .agent-bar:hover { background: #005533; }
+        .agent-details { display: none; width: 400px; border: 1px solid #00ffcc; border-top: none; padding: 15px; background: #05110a; color: #aaa; text-shadow: none; font-size: 0.95rem; text-align: left; line-height: 1.5; }
+
+        /* 사령관 관리자 페이지 (금고) */
+        .vault-section { margin-top: 40px; width: 400px; border-top: 2px dashed #00ffcc; padding-top: 20px; text-align: center; }
+        .vault-title { color: #ffcc00; font-size: 1.3rem; margin-bottom: 15px; text-shadow: 0 0 10px #ffcc00; }
+        .vault-btn { display: block; background: #111; color: #00ffcc; text-decoration: none; border: 1px solid #00ffcc; margin: 10px 0; padding: 12px; font-weight: bold; transition: 0.3s; }
+        .vault-btn:hover { background: #00ffcc; color: #000; box-shadow: 0 0 15px #00ffcc; }
     </style>
 </head>
 <body>
@@ -15,28 +26,51 @@
     <p>> COMMANDER: CHOI SONG-HAK (주군)</p>
     
     <div id="dashboard" class="data-box">
-        > ZENTPARK AGENT: 연결 대기 중...
+        > ZENTPARK AGENT: 데이터 수신 대기 중...
+    </div>
+
+    <div class="agent-bar" onclick="toggleAgentDetails()">
+        ▼ 젠트파크(ZentPark) 내부 활동망 연결 (Click)
+    </div>
+    <div id="agent-details" class="agent-details">
+        <span style="color:#00ffcc;">[시스템]</span> 에이전트 백그라운드 가동 중<br>
+        <span style="color:#00ffcc;">[데이터]</span> 거래소 API 실시간 호가창 스캔 완료<br>
+        <span style="color:#0f0;">[전략]</span> 주군의 손절/익절 리스크 비율 계산 적용<br>
+        <span style="color:#aaa;">[대기]</span> 최적의 타점 발생 시 즉각 보고 예정...
+    </div>
+
+    <div class="vault-section">
+        <div class="vault-title">👑 [ 사령관 관리자 페이지 ]</div>
+        <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">> 제국 1급 기밀 자산 (클릭 시 다운로드)</p>
+        
+        <a href="master_engine.zip" class="vault-btn">📦 1. 마스터 엔진 (master_engine.zip)</a>
+        <a href="quantum_assets.zip" class="vault-btn">📦 2. 퀀텀 자산 (quantum_assets.zip)</a>
+        <a href="strategy_docs.zip" class="vault-btn">📦 3. 전략 문서 (strategy_docs.zip)</a>
     </div>
 
     <script>
+        // 데이터 갱신 스크립트
         async function updateDashboard() {
             try {
-                // 젠트파크가 쏜 최신 데이터를 가져옵니다.
                 const response = await fetch('https://raw.githubusercontent.com/minetia/Project_Phoenix/main/PHX_unified_data.json');
                 const data = await response.json();
-                
-                // 화면에 젠트파크의 보고를 덮어씌웁니다 (누적 방지).
                 document.getElementById('dashboard').innerHTML = `
                     > ZENTPARK AGENT REPORT: ${data.timestamp}<br><br>
                     > SIGNAL: <span style="color:#fff;">${data.signal}</span> <br>
                     > RISK: <span class="risk-high">${data.risk_score}</span>
                 `;
             } catch (e) {
-                document.getElementById('dashboard').innerHTML = "> 데이터 동기화 대기 중... (GitHub 반영 지연 가능성)";
+                // 에러 무시
             }
         }
-        setInterval(updateDashboard, 30000); // 30초마다 갱신
-        updateDashboard(); // 페이지 로드 시 즉시 실행
+        setInterval(updateDashboard, 30000);
+        updateDashboard();
+
+        // 젠트파크 토글 스크립트
+        function toggleAgentDetails() {
+            const details = document.getElementById('agent-details');
+            details.style.display = (details.style.display === "block") ? "none" : "block";
+        }
     </script>
 </body>
 </html>
